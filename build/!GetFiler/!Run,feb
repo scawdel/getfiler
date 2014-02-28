@@ -1,0 +1,17 @@
+| !Run for GetFiler
+|
+| Save Filer window positions.
+| (c) Stephen Fryatt, 2001
+|
+| 1.00 (7 September 2002)
+
+Set GetFiler$Dir <Obey$Dir>
+
+| Do the sprites.
+
+IconSprites <GetFiler$Dir>.!Sprites
+
+| Start the front-end.
+
+WimpSlot -min 32k -max 32k
+Run <GetFiler$Dir>.!RunImage

@@ -1,0 +1,70 @@
+=============================================================================
+GetFiler - Save Filer window positions from the Desktop          Version 1.01
+
+(C) Stephen Fryatt, 2002                                     8 September 2002
+=============================================================================
+
+
+License
+-------
+
+GetFiler is FREEWARE.  Copyright is held by the author, Stephen Fryatt,
+2001.
+
+GetFiler may be copied freely, so long as it remains unaltered with all
+its files and documentation intact.  All copies should have their Choices
+file (if present) deleted from within the application to ensure that new
+users receive GetFiler in its default state.
+
+If you wish to distribute GetFiler, please contact me to get my
+permission. This is so that I can ensure that you have the latest version
+available. GetFiler may not be sold, although Public Domain libraries may
+charge for the cost of discs.
+
+No guarantee is made as to the suitability or stability of GetFiler for
+any particular purpose.  No liability can be accepted by the author for
+any problems or damage caused by the use of GetFiler.
+
+
+
+Introduction and using GetFiler
+-------------------------------
+
+Since the demise of the 'Save Desktop' option in the Task Manager menu
+under Select, it is no longer possible to get a list of the Filer window
+positions.  Even under earlier versions of RISC OS, saving this file just
+for the *Filer_OpenDir commands was a contrived thing to do.  GetFiler is
+s solution.
+
+Copy GetFiler out of the archive and run it in the usual way by
+double-clicking on the !GetFiler icon; GetFiler loads on to the icon bar
+in the normal way.  Clicking Select on its icon opens a save window
+allowing an Obey file containing Filer_OpenDir commands for all of the
+open directory viewers to be saved.
+
+
+
+Vesrion History
+---------------
+
+1.00 (7 September 2002)
+
+  * Initial release version
+
+1.01 (8 September 2002)
+
+  * Fixed 'HTMLCheck bug'.
+
+
+
+Updates and Contacting Me
+-------------------------
+
+If you have any comments about GetFiler, or would like to report any bugs
+that you find, you can email me at the address below.
+
+Updates to GetFiler and more programs for RISC OS computers can be found
+on my website at http://www.stevefryatt.org.uk/software/
+
+Stephen Fryatt
+email: steve@stevefryatt.org.uk
