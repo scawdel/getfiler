@@ -3,7 +3,7 @@ REM
 REM Save Filer window positions.
 REM (c) Stephen Fryatt, 2002
 REM
-REM 1.01 (8 September 2002)
+REM 1.10 (1 July 2009)
 :
 ON ERROR VDU 4 : PRINT "Error in GetFiler: ";REPORT$;" at line ";ERL : END
 :
@@ -36,6 +36,7 @@ CASE reason_code% OF
  WHEN 8     : PROChandle_key_press_event
  WHEN 9     : PROChandle_menu_selection_event
  WHEN 17,18 : PROCreceive_wimp_message
+ WHEN 19    : IF b%!16=&A THEN VDU 4 : PRINT "Bounced!"
 ENDCASE
 ENDPROC
 :
@@ -150,15 +151,17 @@ REPEAT
  IF FNzero_string(b%!4)="Filer" THEN found%=TRUE : task_handle%=!b%
 UNTIL next_task%<0 OR found%
 :
-SYS "OS_Find",&83,"Pipe:$.GetFiler" TO file%
-!b%=28
-b%!12=0
-b%!16=&A
-b%!20=file%
-b%!24=0
-SYS "Wimp_SendMessage",17,b%,task_handle%
-desktop_saved_sent%=TRUE
-poll_mask%=0
+IF found% THEN
+ SYS "OS_Find",&83,"Pipe:$.GetFiler" TO file%
+ !b%=28
+ b%!12=0
+ b%!16=&A
+ b%!20=file%
+ b%!24=0
+ SYS "Wimp_SendMessage",17,b%,task_handle%
+ desktop_saved_sent%=TRUE
+ poll_mask%=0
+ENDIF
 ENDPROC
 :
 :
@@ -244,13 +247,20 @@ DEF PROCsave_obey_file(file$)
 :
 SYS "OS_Find",&83,file$ TO output%
 SYS "OS_Find",&43,"Pipe:$.GetFiler" TO input%
-WHILE NOT EOF#input%
- line$=GET$#input%
- IF LEFT$(line$,13)="Filer_OpenDir" THEN BPUT#output%,line$
-ENDWHILE
-SYS "OS_Find",0,output%
-SYS "OS_Find",0,input%
-SYS "OS_File",18,file$,&FEB
+
+IF input%<>0 AND output%<>0 THEN
+ WHILE NOT EOF#input%
+  line$=GET$#input%
+  IF LEFT$(line$,13)="Filer_OpenDir" THEN BPUT#output%,line$
+ ENDWHILE
+ENDIF
+
+IF output%<>0 THEN
+ SYS "OS_Find",0,output%
+ SYS "OS_File",18,file$,&FEB
+ENDIF
+IF input%<>0 THEN SYS "OS_Find",0,input%
+
 SYS "Wimp_CreateMenu",,-1,0,0
 ENDPROC
 :
