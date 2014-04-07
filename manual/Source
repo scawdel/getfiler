@@ -1,0 +1,89 @@
+<document title="GetFiler">
+<define name="version" value="">
+<define name="date" value="" length=30 align="right">
+
+
+
+
+<literal mode="Text">
+=============================================================================
+GetFiler - Save Filer window positions from the Desktop          Version $$version$$
+
+(C) Stephen Fryatt, 2002-2014                  $$date$$
+=============================================================================
+
+</literal>
+
+
+
+<chapter title="Licence" file="Licence">
+
+<cite>GetFiler</cite> is licensed under the EUPL, Version&nbsp;1.1 only (the &ldquo;Licence&rdquo;); you may not use this work except in compliance with the Licence.
+
+You may obtain a copy of the Licence at <link ref="#url http://joinup.ec.europa.eu/software/page/eupl">http://joinup.ec.europa.eu/software/page/eupl</link>
+
+Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an &ldquo;<strong>as is</strong>&rdquo; basis, <strong>without warranties or conditions of any kind</strong>, either express or implied.
+
+See the Licence for the specific language governing permissions and limitations under the Licence.
+
+The source for <cite>GetFiler</cite> can be found alongside this binary download, at <link ref="#url http://www.stevefryatt.org.uk/software">http://www.stevefryatt.org.uk/software</link>
+
+</chapter>
+
+
+
+<chapter title="Introduction and Use" file="Use">
+
+Since the demise of the <menu>Save Desktop</menu> option in the <cite>Task Manager</cite> menu under RISC&nbsp;OS Select, it is no longer possible to get a list of the Filer window positions. Even under earlier versions of RISC&nbsp;OS, saving this file just for the <command>*Filer_OpenDir</command> commands was a contrived thing to do. <cite>GetFiler</cite> is a solution.
+
+Copy <cite>GetFiler</cite> out of the archive and run it in the usual way by double-clicking on the <file>!GetFiler</file> icon; <file>GetFiler</file> loads on to the icon bar in the normal way. Clicking <mouse>select</mouse> on its icon opens a save window allowing an Obey file containing <command>*Filer_OpenDir</command> commands for all of the open directory viewers to be saved.
+
+</chapter>
+
+
+
+
+
+<chapter title="Version History" file="History">
+
+Here is a list of the versions of <cite>GetFiler</cite>, along with all the changes made.
+
+
+<subhead title="1.00 (7 September 2002)">
+
+Initial release version.
+
+
+<subhead title="1.01 (8 September 2002)">
+
+Update to initial release.
+
+<list>
+<li>Fixed &lsquo;HTMLCheck bug&rsquo;.
+</list>
+
+
+<subhead title="Test Build">
+
+Development release for testing and feedback.
+
+</chapter>
+
+
+
+
+
+<literal mode="Text">
+
+Updates and Contacting Me
+-------------------------
+
+  If you have any comments about GetFiler, or would like to report any bugs
+  that you find, you can email me at the address below.
+
+  Updates to GetFiler and more software for RISC OS computers can be found
+  on my website at http://www.stevefryatt.org.uk/software/
+
+  Stephen Fryatt
+  email: steve@stevefryatt.org.uk
+</literal>
