@@ -68,7 +68,7 @@ MANTOOLS := $(SFBIN)/mantools
 BINDHELP := $(SFBIN)/bindhelp
 TEXTMERGE := $(SFBIN)/textmerge
 MENUGEN := $(SFBIN)/menugen
-TOLENIZE := $(SFBIN)/tokenize
+TOKENIZE := $(SFBIN)/tokenize
 
 
 # Build Flags
@@ -84,7 +84,6 @@ TOKFLAGS :=
 
 SRCDIR := src
 MANUAL := manual
-OBJDIR := obj
 OUTDIR := build
 
 
@@ -105,7 +104,7 @@ READMEHDR := Header
 SPRITES := Sprites,ff9
 SPRITES22 := Sprites22,ff9
 
-OBJS := Fortune.o
+SRCS := GetFiler.bbt
 
 # Build everything, but don't package it for release.
 
@@ -119,20 +118,10 @@ application: $(OUTDIR)/$(APP)/$(RUNIMAGE)
 
 # Build the complete !RunImage from the object files.
 
-OBJS := $(addprefix $(OBJDIR)/, $(OBJS))
+SRCS := $(addprefix $(SRCDIR)/, $(SRCS))
 
-$(OUTDIR)/$(APP)/$(RUNIMAGE): $(SRCDIR)/%.bbt
-	$(TOKENIZE) $(TOKFLAGS) $< -out $@
-
-# Create a folder to hold the object files.
-
-$(OBJDIR):
-	$(MKDIR) $(OBJDIR)
-
-# Build the object files, and identify their dependencies.
-
-$(OBJDIR)/%.o: $(SRCDIR)/%.s
-	$(AS) $(ASFLAGS) -PreDefine 'Include SETS "$(GCCSDK_INSTALL_ENV)/include"' -Predefine 'Sprites SETS "$(SRCDIR)/$(SPRITES)"' -Predefine 'Sprites22 SETS "$(SRCDIR)/$(SPRITES22)"' -PreDefine 'BuildDate SETS "\"$(BUILD_DATE)\""' -PreDefine 'BuildVersion SETS "\"$(VERSION)\""' -o $@ $<
+$(OUTDIR)/$(APP)/$(RUNIMAGE): $(SRCS)
+	$(TOKENIZE) $(TOKFLAGS) $(firstword $(SRCS)) -link -out $(OUTDIR)/$(APP)/$(RUNIMAGE) -define 'build_date$$=$(VERSION)' -define 'build_version$$=$(BUILD_DATE)'
 
 # Build the documentation
 
@@ -161,7 +150,6 @@ backup:
 # Clean targets
 
 clean:
-	$(RM) $(OBJDIR)/*
 	$(RM) $(OUTDIR)/$(APP)/$(RUNIMAGE)
 	$(RM) $(OUTDIR)/$(README)
 

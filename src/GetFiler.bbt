@@ -11,7 +11,7 @@ LIBRARY "BASIC:Wimplib"
 :
 REM These values get replaced by tokenize.
 :
-version$ = "1.10"
+build_version$ = "1.10"
 build_date$ = "01 Jul 2009"
 :
 PROCinitialise
@@ -130,7 +130,7 @@ SYS "Wimp_CreateWindow",,b% TO save_window%
 PROCclose_templates
 :
 $FNicon_indirection(program_info_window%, 2) = CHR$(169) + " Stephen Fryatt, 2002-" + MID$(build_date$, 8)
-$FNicon_indirection(program_info_window%, 3) = version$ + " (" + build_date$ + ")"
+$FNicon_indirection(program_info_window%, 3) = build_version$ + " (" + build_date$ + ")"
 :
 SYS "XOS_SWINumberFromString",,"DragASprite_Start" TO ;flags%
 drag_a_sprite%=(flags% AND 1)=0
