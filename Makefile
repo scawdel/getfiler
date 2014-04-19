@@ -155,5 +155,6 @@ backup:
 
 clean:
 	$(RM) $(OUTDIR)/$(APP)/$(RUNIMAGE)
+	$(RM) $(OUTDIR)/$(APP)/$(TEXTHELP)
 	$(RM) $(OUTDIR)/$(README)
 
