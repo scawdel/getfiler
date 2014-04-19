@@ -123,7 +123,7 @@ application: $(OUTDIR)/$(APP)/$(RUNIMAGE)
 SRCS := $(addprefix $(SRCDIR)/, $(SRCS))
 
 $(OUTDIR)/$(APP)/$(RUNIMAGE): $(SRCS)
-	$(TOKENIZE) $(TOKFLAGS) $(firstword $(SRCS)) -link -out $(OUTDIR)/$(APP)/$(RUNIMAGE) -path BASIC:$(LIBPATH) -define 'build_date$$=$(VERSION)' -define 'build_version$$=$(BUILD_DATE)'
+	$(TOKENIZE) $(TOKFLAGS) $(firstword $(SRCS)) -link -out $(OUTDIR)/$(APP)/$(RUNIMAGE) -path BASIC:$(LIBPATH) -define 'build_date$$=$(BUILD_DATE)' -define 'build_version$$=$(VERSION)'
 
 # Build the documentation
 
