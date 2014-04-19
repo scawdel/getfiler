@@ -64,6 +64,8 @@ ZIP := /home/steve/GCCSDK/env/bin/zip
 
 SFBIN := /home/steve/GCCSDK/sfbin
 
+LIBPATH := /home/steve/GCCSDK/basic/
+
 MANTOOLS := $(SFBIN)/mantools
 BINDHELP := $(SFBIN)/bindhelp
 TEXTMERGE := $(SFBIN)/textmerge
@@ -77,7 +79,7 @@ ZIPFLAGS := -x "*/.svn/*" -r -, -9
 SRCZIPFLAGS := -x "*/.svn/*" -r -9
 BUZIPFLAGS := -x "*/.svn/*" -r -9
 BINDHELPFLAGS := -f -r -v
-TOKFLAGS :=
+TOKFLAGS := -verbose
 
 
 # Set up the various build directories.
@@ -121,7 +123,7 @@ application: $(OUTDIR)/$(APP)/$(RUNIMAGE)
 SRCS := $(addprefix $(SRCDIR)/, $(SRCS))
 
 $(OUTDIR)/$(APP)/$(RUNIMAGE): $(SRCS)
-	$(TOKENIZE) $(TOKFLAGS) $(firstword $(SRCS)) -link -out $(OUTDIR)/$(APP)/$(RUNIMAGE) -define 'build_date$$=$(VERSION)' -define 'build_version$$=$(BUILD_DATE)'
+	$(TOKENIZE) $(TOKFLAGS) $(firstword $(SRCS)) -link -out $(OUTDIR)/$(APP)/$(RUNIMAGE) -path BASIC:$(LIBPATH) -define 'build_date$$=$(VERSION)' -define 'build_version$$=$(BUILD_DATE)'
 
 # Build the documentation
 

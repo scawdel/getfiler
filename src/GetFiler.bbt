@@ -7,7 +7,7 @@ REM 1.10 (1 July 2009)
 :
 ON ERROR VDU 4 : PRINT "Error in GetFiler: ";REPORT$;" at line ";ERL : END
 :
-LIBRARY "BASIC:Wimplib"
+LIBRARY "BASIC:WimpLib"
 :
 REM These values get replaced by tokenize.
 :
