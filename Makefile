@@ -114,7 +114,7 @@ all: application documentation
 
 # Build the application and its supporting binary files.
 
-application: $(OUTDIR)/$(APP)/$(RUNIMAGE) $(OUTDIR)/$(APP)/$(UKRES)/$(MENUS)
+application: $(OUTDIR)/$(APP)/$(RUNIMAGE) $(OUTDIR)/$(APP)/$(MENUS)
 
 
 # Build the complete !RunImage from the object files.
@@ -126,8 +126,8 @@ $(OUTDIR)/$(APP)/$(RUNIMAGE): $(SRCS)
 
 # Build the menus file.
 
-$(OUTDIR)/$(APP)/$(UKRES)/$(MENUS): $(MENUDIR)/$(MENUSRC)
-	$(MENUGEN) $(MENUDIR)/$(MENUSRC) $(OUTDIR)/$(APP)/$(UKRES)/$(MENUS) $(MENUGENFLAGS)
+$(OUTDIR)/$(APP)/$(MENUS): $(MENUDIR)/$(MENUSRC)
+	$(MENUGEN) $(MENUDIR)/$(MENUSRC) $(OUTDIR)/$(APP)/$(MENUS) $(MENUGENFLAGS)
 
 # Build the documentation
 
@@ -160,6 +160,6 @@ backup:
 clean:
 	$(RM) $(OUTDIR)/$(APP)/$(RUNIMAGE)
 	$(RM) $(OUTDIR)/$(APP)/$(TEXTHELP)
-	$(RM) $(OUTDIR)/$(APP)/$(UKRES)/$(MENUS)
+	$(RM) $(OUTDIR)/$(APP)/$(MENUS)
 	$(RM) $(OUTDIR)/$(README)
 
