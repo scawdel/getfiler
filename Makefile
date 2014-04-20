@@ -84,6 +84,7 @@ TOKFLAGS := -verbose -crunch EIrW
 
 SRCDIR := src
 MANUAL := manual
+MENUDIR := menus
 OUTDIR := build
 
 
@@ -91,6 +92,7 @@ OUTDIR := build
 
 APP := !GetFiler
 RUNIMAGE := !RunImage,ffb
+MENUS := Menus,ffd
 README := ReadMe,fff
 TEXTHELP := !Help,fff
 LICENSE := Licence,fff
@@ -101,8 +103,7 @@ LICENSE := Licence,fff
 MANSRC := Source
 MANSPR := ManSprite
 READMEHDR := Header
-SPRITES := Sprites,ff9
-SPRITES22 := Sprites22,ff9
+MENUSRC := menudef
 
 SRCS := GetFiler.bbt
 
@@ -113,7 +114,7 @@ all: application documentation
 
 # Build the application and its supporting binary files.
 
-application: $(OUTDIR)/$(APP)/$(RUNIMAGE)
+application: $(OUTDIR)/$(APP)/$(RUNIMAGE) $(OUTDIR)/$(APP)/$(UKRES)/$(MENUS)
 
 
 # Build the complete !RunImage from the object files.
@@ -122,6 +123,11 @@ SRCS := $(addprefix $(SRCDIR)/, $(SRCS))
 
 $(OUTDIR)/$(APP)/$(RUNIMAGE): $(SRCS)
 	$(TOKENIZE) $(TOKFLAGS) $(firstword $(SRCS)) -link -out $(OUTDIR)/$(APP)/$(RUNIMAGE) -path $(LIBPATHS) -define 'build_date$$=$(BUILD_DATE)' -define 'build_version$$=$(VERSION)'
+
+# Build the menus file.
+
+$(OUTDIR)/$(APP)/$(UKRES)/$(MENUS): $(MENUDIR)/$(MENUSRC)
+	$(MENUGEN) $(MENUDIR)/$(MENUSRC) $(OUTDIR)/$(APP)/$(UKRES)/$(MENUS) $(MENUGENFLAGS)
 
 # Build the documentation
 
@@ -154,5 +160,6 @@ backup:
 clean:
 	$(RM) $(OUTDIR)/$(APP)/$(RUNIMAGE)
 	$(RM) $(OUTDIR)/$(APP)/$(TEXTHELP)
+	$(RM) $(OUTDIR)/$(APP)/$(UKRES)/$(MENUS)
 	$(RM) $(OUTDIR)/$(README)
 
