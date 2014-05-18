@@ -71,7 +71,7 @@ DEF PROChandle_mouse_click_event
 CASE b%!12 OF
  WHEN -2
   CASE b%!8 OF
-   WHEN 2 : PROCdisplay_bar_menu(icon_bar_menu%,2,0,!b%)
+   WHEN 2 : PROCdisplay_bar_menu(icon_bar_menu%,3,1,!b%)
    WHEN 4 : PROCsend_desktop_save
   ENDCASE
  WHEN save_window%
@@ -105,7 +105,8 @@ DEF PROChandle_menu_selection_event
 CASE menu_up% OF
  WHEN icon_bar_menu%
   CASE !b% OF
-   WHEN 1 : quit%=TRUE
+   WHEN 1 : OSCLI("%Filer_Run <GetFiler$Dir>.!Help")
+   WHEN 2 : quit%=TRUE
   ENDCASE
 ENDCASE
 ENDPROC

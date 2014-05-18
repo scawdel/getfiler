@@ -27,5 +27,8 @@ menu(icon_bar_menu, "GetFiler") {
 	item("Info") {
 		d_box(program_information_window);
 	}
+	item("Help...") {
+		dotted;
+	}
 	item("Quit");
 }
