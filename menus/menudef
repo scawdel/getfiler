@@ -21,13 +21,11 @@
  * permissions and limitations under the Licence.
  */
 
-/* Icon bar menu. */
+/* Iconbar menu. */
 
-menu (icon_bar_menu, "GetFiler")
-{
-  item ("Info")
-  {
-    d_box (program_information_window);
-  }
-  item ("Quit");
+menu(icon_bar_menu, "GetFiler") {
+	item("Info") {
+		d_box(program_information_window);
+	}
+	item("Quit");
 }
