@@ -201,7 +201,7 @@ poll_mask%=1
 SYS "OS_Find",0,file%
 :
 $FNicon_indirection(save_window%,2)="FilerPos"
-PROCopen_window_as_menu_at(save_window%,save_x%,save_y%)
+PROCwindow_open_as_menu_at(save_window%,save_x%,save_y%)
 ENDPROC
 :
 :
