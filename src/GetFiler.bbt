@@ -27,6 +27,7 @@ REM Save the positions of Filer windows.
 ON ERROR VDU 4 : PRINT "Error in GetFiler: ";REPORT$;" at line ";ERL : END
 :
 LIBRARY "BASIC:WimpLib"
+LIBRARY "BASIC:Icon"
 :
 REM These values get replaced by tokenize.
 :
