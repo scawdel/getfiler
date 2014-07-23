@@ -171,13 +171,15 @@ ENDPROC
 :
 :
 DEF PROCsend_desktop_save
+LOCAL task_name$
 save_x%=!b% : save_y%=b%!4
 next_task%=0
 found%=FALSE
 :
 REPEAT
  SYS "TaskManager_EnumerateTasks",next_task%,b%,16 TO next_task%
- IF FNzero_string(b%!4)="Filer" THEN found%=TRUE : task_handle%=!b%
+ SYS "XOS_GenerateError", b%!4 TO task_name$
+ IF task_name$ = "Filer" THEN found% = TRUE : task_handle% = !b%
 UNTIL next_task%<0 OR found%
 :
 IF found% THEN
@@ -218,7 +220,7 @@ ox%=q%!4-q%!20
 oy%=q%!16-q%!24
 q%!4=3
 SYS "Wimp_GetIconState",,q%
-sprite$=FNctrl_string(q%!28)
+SYS "XOS_GenerateError", q%!28 TO sprite$
 q%!4=5
 q%!8=ox%+q%!8
 q%!12=oy%+q%!12
@@ -262,7 +264,9 @@ ENDPROC
 :
 :
 DEF PROCsave_file_from_drag
-PROCsave_obey_file(FNctrl_string(b%+44))
+LOCAL filename$
+SYS "XOS_GenerateError", b% + 44 TO filename$
+PROCsave_obey_file(filename$)
 :
 b%!12=b%!8
 b%!16=3
@@ -292,18 +296,4 @@ IF input%<>0 THEN SYS "OS_Find",0,input%
 
 SYS "Wimp_CreateMenu",,-1,0,0
 ENDPROC
-:
-:
-:
-:
-DEF FNctrl_string(string%)
-:
-REM Return as a BASIC string a control character terminated string.
-:
-LOCAL string$
-:
-WHILE ?string%>=32
- string$+=CHR$(?string%)
- string%+=1
-ENDWHILE
-=string$
+
