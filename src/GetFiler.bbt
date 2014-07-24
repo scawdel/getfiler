@@ -162,7 +162,7 @@ IF (cmos_28% AND %10)=0 THEN drag_a_sprite%=FALSE
 PROCload_menu_block("<GetFiler$Dir>.Menus",q%)
 icon_bar_menu%=!q%
 :
-icon_bar%=FNcreate_standard_bar_icon(-1,"!getfiler")
+icon_bar%=FNicon_create_standard_bar(-1,"!getfiler")
 desktop_saved_sent%=FALSE
 poll_mask%=1
 ENDPROC
@@ -253,7 +253,7 @@ q%!32=q%!4
 q%!12=0
 q%!16=1
 :
-$(q%+44)=FNleaf_name($FNicon_indirection(save_window%,2))+CHR$(0)
+$(q%+44)=FNstring_leafname($FNicon_indirection(save_window%,2))+CHR$(0)
 q%!36=0    : REM File size (rubbish)
 q%!40=&FEB : REM File type
 q%!0=(48+LEN($(q%+44))) AND (NOT %11)
