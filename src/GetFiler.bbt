@@ -28,6 +28,7 @@ ON ERROR VDU 4 : PRINT "Error in GetFiler: ";REPORT$;" at line ";ERL : END
 :
 LIBRARY "BASIC:WimpLib"
 LIBRARY "BASIC:Icon"
+LIBRARY "BASIC:Template"
 :
 REM These values get replaced by tokenize.
 :
@@ -143,12 +144,12 @@ quit%=FALSE
 indirected_data_size%=1024
 DIM indirected_data% indirected_data_size%
 :
-PROCopen_templates("<GetFiler$Dir>.Templates")
-PROCload_template("Info",b%,indirected_data%,indirected_data_size%,-1)
+PROCtemplate_open("<GetFiler$Dir>.Templates")
+PROCtemplate_load("Info",b%,indirected_data%,indirected_data_size%,-1)
 SYS "Wimp_CreateWindow",,b% TO program_info_window%
-PROCload_template("SaveAs",b%,indirected_data%,indirected_data_size%,-1)
+PROCtemplate_load("SaveAs",b%,indirected_data%,indirected_data_size%,-1)
 SYS "Wimp_CreateWindow",,b% TO save_window%
-PROCclose_templates
+PROCtemplate_close
 :
 $FNicon_indirection(program_info_window%, 2) = CHR$(169) + " Stephen Fryatt, 2002-" + MID$(build_date$, 8)
 $FNicon_indirection(program_info_window%, 3) = build_version$ + " (" + build_date$ + ")"
