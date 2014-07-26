@@ -24,12 +24,14 @@ REM permissions and limitations under the Licence.
 :
 REM Save the positions of Filer windows.
 :
-ON ERROR VDU 4 : PRINT "Error in GetFiler: ";REPORT$;" at line ";ERL : END
-:
 LIBRARY "BASIC:WimpLib"
 LIBRARY "BASIC:Icon"
 LIBRARY "BASIC:Menu"
 LIBRARY "BASIC:Template"
+LIBRARY "BASIC:WimpError"
+:
+PROCwimperror_initialise("GetFiler", "")
+ON ERROR ON ERROR result% = FNwimperror_program : END
 :
 REM These values get replaced by tokenize.
 :
@@ -38,7 +40,7 @@ build_date$ = "01 Jul 2009"
 :
 PROCinitialise
 :
-ON ERROR IF FNerror(task_name$)=2 THEN quit%=TRUE
+ON ERROR quit% = FNwimperror_program
 :
 WHILE NOT quit%
  PROCpoll
@@ -168,6 +170,7 @@ icon_bar_menu%=!q%
 icon_bar%=FNicon_create_standard_bar(-1,"!getfiler")
 desktop_saved_sent%=FALSE
 poll_mask%=1
+PROCwimperror_initialise(task_name$, "!getfiler")
 ENDPROC
 :
 :
