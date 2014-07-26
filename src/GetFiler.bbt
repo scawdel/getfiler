@@ -28,6 +28,7 @@ ON ERROR VDU 4 : PRINT "Error in GetFiler: ";REPORT$;" at line ";ERL : END
 :
 LIBRARY "BASIC:WimpLib"
 LIBRARY "BASIC:Icon"
+LIBRARY "BASIC:Menu"
 LIBRARY "BASIC:Template"
 :
 REM These values get replaced by tokenize.
@@ -73,7 +74,7 @@ DEF PROChandle_mouse_click_event
 CASE b%!12 OF
  WHEN -2
   CASE b%!8 OF
-   WHEN 2 : PROCdisplay_bar_menu(icon_bar_menu%,3,1,!b%)
+   WHEN 2 : PROCmenu_create_iconbar(icon_bar_menu%, !b%)
    WHEN 4 : PROCsend_desktop_save
   ENDCASE
  WHEN save_window%
@@ -104,7 +105,7 @@ ENDPROC
 :
 :
 DEF PROChandle_menu_selection_event
-CASE menu_up% OF
+CASE FNmenu_current_handle OF
  WHEN icon_bar_menu%
   CASE !b% OF
    WHEN 1 : OSCLI("%Filer_Run <GetFiler$Dir>.!Help")
@@ -159,8 +160,9 @@ drag_a_sprite%=(flags% AND 1)=0
 SYS "OS_Byte",161,28 TO ,,cmos_28%
 IF (cmos_28% AND %10)=0 THEN drag_a_sprite%=FALSE
 :
+PROCmenu_initialise
 !q%=program_info_window%
-PROCload_menu_block("<GetFiler$Dir>.Menus",q%)
+PROCmenu_load_templates("<GetFiler$Dir>.Menus",q%)
 icon_bar_menu%=!q%
 :
 icon_bar%=FNicon_create_standard_bar(-1,"!getfiler")
