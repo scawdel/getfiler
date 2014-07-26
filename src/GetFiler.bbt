@@ -24,7 +24,6 @@ REM permissions and limitations under the Licence.
 :
 REM Save the positions of Filer windows.
 :
-LIBRARY "BASIC:WimpLib"
 LIBRARY "BASIC:Icon"
 LIBRARY "BASIC:Menu"
 LIBRARY "BASIC:Template"
