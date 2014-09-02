@@ -63,12 +63,14 @@ Update to initial release.
 </list>
 
 
-<subhead title="Test Build">
+<subhead title="1.02 (2 September 2014)">
 
-Development release for testing and feedback.
+Update to initial release.
 
 <list>
 <li>Added <menu>Help</menu> entry in iconbar menu.
+<li>Added <icon>Website</icon> button in <window>program information</window> window.
+<li>Return proper error message when desktop save message fails.
 </list>
 
 </chapter>
