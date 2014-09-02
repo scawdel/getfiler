@@ -137,7 +137,7 @@ ENDPROC
 :
 DEF PROCbounced_wimp_message
 CASE b%!16 OF
- WHEN &A     : VDU 4 : PRINT "Bounced!"
+ WHEN &A     : PROCwimperror_report("The desktop save message bounced.", 2, 2, "")
  WHEN &4AF80 : PROCurl_bounce(b%)
 ENDCASE
 ENDPROC
