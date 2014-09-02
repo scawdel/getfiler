@@ -26,8 +26,11 @@ REM Save the positions of Filer windows.
 :
 LIBRARY "BASIC:Icon"
 LIBRARY "BASIC:Menu"
+LIBRARY "BASIC:String"
 LIBRARY "BASIC:Template"
+LIBRARY "BASIC:Url"
 LIBRARY "BASIC:WimpError"
+LIBRARY "BASIC:Window"
 :
 PROCwimperror_initialise("GetFiler", "")
 ON ERROR ON ERROR result% = FNwimperror_program : END
@@ -64,7 +67,7 @@ CASE reason_code% OF
  WHEN 8     : PROChandle_key_press_event
  WHEN 9     : PROChandle_menu_selection_event
  WHEN 17,18 : PROCreceive_wimp_message
- WHEN 19    : IF b%!16=&A THEN VDU 4 : PRINT "Bounced!"
+ WHEN 19    : PROCbounced_wimp_message
 ENDCASE
 ENDPROC
 :
@@ -86,7 +89,9 @@ CASE b%!12 OF
      WHEN 0 : PROCsave_obey_file($FNicon_indirection(save_window%,2))
      WHEN 1 : SYS "Wimp_CreateMenu",,-1,0,0
     ENDCASE
- ENDCASE
+  ENDCASE
+ WHEN program_info_window%
+  IF b%!8 = 4 AND b%!16 = 8 THEN PROCurl_launch("http://www.stevefryatt.org.uk/software/utils/") : PROCmenu_create(-1,0,0)
 ENDCASE
 ENDPROC
 :
@@ -123,6 +128,17 @@ CASE b%!16 OF
  WHEN 0 : quit%=TRUE
  WHEN 2 : PROCsave_file_from_drag
  WHEN &400C9 : IF b%!20=save_window% THEN SYS "OS_File",6,"Pipe:$.GetFiler"
+ WHEN &4E383 : PROCurl_bounce(b%)
+ENDCASE
+ENDPROC
+:
+:
+:
+:
+DEF PROCbounced_wimp_message
+CASE b%!16 OF
+ WHEN &A     : VDU 4 : PRINT "Bounced!"
+ WHEN &4AF80 : PROCurl_bounce(b%)
 ENDCASE
 ENDPROC
 :
@@ -137,7 +153,9 @@ task_name$="GetFiler"
 $b%="TASK"
 q%!0=2
 q%!4=&400C9
-q%!8=0
+q%!8=&4E383
+q%!12=&4AF80
+q%!16=0
 :
 SYS "Wimp_Initialise",310,!b%,task_name$,q%
 :
@@ -301,4 +319,8 @@ IF input%<>0 THEN SYS "OS_Find",0,input%
 
 SYS "Wimp_CreateMenu",,-1,0,0
 ENDPROC
+
+:
+DEF FNmessage_lookup(token$)
+IF token$ = "URLFailed" THEN = "Could not find an application to launch the given URL." ELSE =""
 
