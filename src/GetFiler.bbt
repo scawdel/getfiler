@@ -1,6 +1,6 @@
 REM >!GetFiler
 REM
-REM Copyright 2002-2014, Stephen Fryatt (info@stevefryatt.org.uk)
+REM Copyright 2002-2017, Stephen Fryatt (info@stevefryatt.org.uk)
 REM
 REM This file is part of GetFiler:
 REM
@@ -26,6 +26,7 @@ REM Save the positions of Filer windows.
 :
 LIBRARY "BASIC:Icon"
 LIBRARY "BASIC:Menu"
+LIBRARY "BASIC:Resources"
 LIBRARY "BASIC:String"
 LIBRARY "BASIC:Template"
 LIBRARY "BASIC:Url"
@@ -146,8 +147,14 @@ ENDPROC
 :
 :
 DEF PROCinitialise
-DIM a% 256, b% 4095, q% 256
+LOCAL resources$
 :
+DIM a% 256, b% 4095, q% 256
+
+REM Locate the application resources.
+
+resources$ = FNresources_find_territory_folder("<GetFiler$Dir>.Resources")
+
 task_name$="GetFiler"
 :
 $b%="TASK"
@@ -164,7 +171,7 @@ quit%=FALSE
 indirected_data_size%=1024
 DIM indirected_data% indirected_data_size%
 :
-PROCtemplate_open("<GetFiler$Dir>.Templates")
+PROCtemplate_open(resources$ + "Templates")
 PROCtemplate_load("Info",b%,indirected_data%,indirected_data_size%,-1)
 SYS "Wimp_CreateWindow",,b% TO program_info_window%
 PROCtemplate_load("SaveAs",b%,indirected_data%,indirected_data_size%,-1)
@@ -181,7 +188,7 @@ IF (cmos_28% AND %10)=0 THEN drag_a_sprite%=FALSE
 :
 PROCmenu_initialise
 !q%=program_info_window%
-PROCmenu_load_templates("<GetFiler$Dir>.Menus",q%)
+PROCmenu_load_templates(resources$ + "Menus",q%)
 icon_bar_menu%=!q%
 :
 icon_bar%=FNicon_create_standard_bar(-1,"!getfiler")
