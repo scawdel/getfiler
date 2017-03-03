@@ -26,6 +26,7 @@ REM Save the positions of Filer windows.
 :
 LIBRARY "BASIC:Icon"
 LIBRARY "BASIC:Menu"
+LIBRARY "BASIC:Message"
 LIBRARY "BASIC:Resources"
 LIBRARY "BASIC:String"
 LIBRARY "BASIC:Template"
@@ -33,8 +34,8 @@ LIBRARY "BASIC:Url"
 LIBRARY "BASIC:WimpError"
 LIBRARY "BASIC:Window"
 :
-PROCwimperror_initialise("GetFiler", "")
-ON ERROR ON ERROR result% = FNwimperror_program : END
+PROCwimperror_initialise("GetFiler", "!getfiler")
+ON ERROR result% = FNwimperror_program : END
 :
 REM These values get replaced by tokenize.
 :
@@ -43,9 +44,9 @@ build_date$ = "01 Jul 2009"
 :
 PROCinitialise
 :
-ON ERROR quit% = FNwimperror_program
+ON ERROR Quit% = FNwimperror_program
 :
-WHILE NOT quit%
+WHILE NOT Quit%
  PROCpoll
 ENDWHILE
 :
@@ -67,8 +68,8 @@ CASE reason_code% OF
  WHEN 7     : PROCuser_drag_box_end
  WHEN 8     : PROChandle_key_press_event
  WHEN 9     : PROChandle_menu_selection_event
- WHEN 17,18 : PROCreceive_wimp_message
- WHEN 19    : PROCbounced_wimp_message
+ WHEN 17,18 : PROCuser_message(b%)
+ WHEN 19    : PROCuser_message_bounce(b%)
 ENDCASE
 ENDPROC
 :
@@ -79,20 +80,20 @@ DEF PROChandle_mouse_click_event
 CASE b%!12 OF
  WHEN -2
   CASE b%!8 OF
-   WHEN 2 : PROCmenu_create_iconbar(icon_bar_menu%, !b%)
+   WHEN 2 : PROCmenu_create_iconbar(IconbarMenu%, !b%)
    WHEN 4 : PROCsend_desktop_save
   ENDCASE
- WHEN save_window%
+ WHEN SaveWindow%
   CASE b%!8 OF
    WHEN 64 : IF b%!16=3 PROCstart_save_drag
    WHEN 4
     CASE b%!16 OF
-     WHEN 0 : PROCsave_obey_file($FNicon_indirection(save_window%,2))
+     WHEN 0 : PROCsave_obey_file($FNicon_indirection(SaveWindow%,2))
      WHEN 1 : SYS "Wimp_CreateMenu",,-1,0,0
     ENDCASE
   ENDCASE
- WHEN program_info_window%
-  IF b%!8 = 4 AND b%!16 = 8 THEN PROCurl_launch("http://www.stevefryatt.org.uk/software/utils/") : PROCmenu_create(-1,0,0)
+ WHEN InfoWindow%
+  IF b%!8 = 4 AND b%!16 = 8 THEN PROCurl_launch(FNmessage_lookup("SupportURL")) : PROCmenu_create(-1,0,0)
 ENDCASE
 ENDPROC
 :
@@ -100,9 +101,9 @@ ENDPROC
 :
 :
 DEF PROChandle_key_press_event
-IF !b%=save_window% THEN
+IF !b%=SaveWindow% THEN
  CASE b%!24 OF
-  WHEN 13 : PROCsave_obey_file($FNicon_indirection(save_window%,2))
+  WHEN 13 : PROCsave_obey_file($FNicon_indirection(SaveWindow%,2))
   WHEN 27 : SYS "Wimp_CreateMenu",,-1,0,0
  ENDCASE
 ENDIF
@@ -113,10 +114,10 @@ ENDPROC
 :
 DEF PROChandle_menu_selection_event
 CASE FNmenu_current_handle OF
- WHEN icon_bar_menu%
+ WHEN IconbarMenu%
   CASE !b% OF
    WHEN 1 : OSCLI("%Filer_Run <GetFiler$Dir>.!Help")
-   WHEN 2 : quit%=TRUE
+   WHEN 2 : Quit% = TRUE
   ENDCASE
 ENDCASE
 ENDPROC
@@ -124,23 +125,87 @@ ENDPROC
 :
 :
 :
-DEF PROCreceive_wimp_message
+DEF PROCuser_message(block%)
 CASE b%!16 OF
- WHEN 0 : quit%=TRUE
- WHEN 2 : PROCsave_file_from_drag
- WHEN &400C9 : IF b%!20=save_window% THEN SYS "OS_File",6,"Pipe:$.GetFiler"
- WHEN &4E383 : PROCurl_bounce(b%)
+	WHEN 0		: Quit% = TRUE
+	WHEN 2		: PROCsave_file_from_drag
+	WHEN &502	: PROCsend_interactive_help(block%)
+	WHEN &400C9	: IF block%!20 = SaveWindow% THEN SYS "OS_File", 6, "Pipe:$.GetFiler"
+	WHEN &4E383	: PROCurl_bounce(block%)
 ENDCASE
 ENDPROC
 :
 :
 :
 :
-DEF PROCbounced_wimp_message
+DEF PROCuser_message_bounce(block%)
 CASE b%!16 OF
- WHEN &A     : PROCwimperror_report("The desktop save message bounced.", 2, 2, "")
- WHEN &4AF80 : PROCurl_bounce(b%)
+	WHEN &A		: PROCwimperror_report(FNmessage_lookup("BadSave"), 2, 2, "")
+	WHEN &4AF80	: PROCurl_bounce(block%)
 ENDCASE
+ENDPROC
+
+
+
+REM Process requests for interactive help text.
+REM
+REM \param message%		Pointer to the Message_HelpRequest block.
+:
+DEF PROCsend_interactive_help(message%)
+LOCAL root$, suffix$, found%, message$
+
+REM Compare the window handle to the windows we know about, and find the
+REM relevant token name.
+
+CASE message%!32 OF
+	WHEN -2			: root$ = "IconBar"
+	WHEN SaveWindow%	: root$ = "Save"
+	WHEN InfoWindow%	: root$ = "Info"
+	OTHERWISE		: root$ = ""
+ENDCASE
+
+REM Look up the help text, either as a window message or by checking the
+REM menus that belong to us.
+
+IF root$ <> "" THEN
+	suffix$ = FNicon_validation_command(message%!32, message%!36, "N")
+
+	REM If there's a name in the validation string, use that; otherwise
+	REM check to see if there's a special case to set up.
+
+	IF suffix$ <> "" THEN
+		root$ += "." + suffix$
+	ELSE
+		IF message%!32 = SaveWindow% THEN
+			CASE TRUE OF
+				WHEN message%!36 >= 0 AND message%!36 <= 9	: root$ += ".Pool"
+				WHEN message%!36 >= 10 AND message%!36 <= 57	: root$ += ".Guess"
+				WHEN message%!36 >= 58 AND message%!36 <= 105	: root$ += ".Mark"
+				WHEN message%!36 >= 123 AND message%!36 <= 134	: root$ += ".Process"
+			ENDCASE
+		ENDIF
+	ENDIF
+	found% = FNmessage_lookup_result("Help." + root$, message$)
+ELSE
+	SYS "Wimp_GetMenuState", 1, q%, message%!32, message%!36
+	CASE FNmenu_current_handle OF
+		WHEN IconbarMenu%	: root$ = "IconBarMenu." + RIGHT$("00" + STR$(!q%), 2)
+	ENDCASE
+	
+	IF root$ <> "" THEN found% = FNmessage_lookup_result("Help." + root$, message$)
+ENDIF
+
+REM If no message was found, give up now.
+
+IF NOT found% THEN ENDPROC
+
+REM If a message was found, send it back to the requestor.
+
+message%!12 = message%!8
+message%!16 = &503
+$(message% + 20) = message$ + CHR$(0)
+!message% = 24+(LEN(message$) AND &FFFFFC)
+SYS "Wimp_SendMessage", 17, message%, message%!4
 ENDPROC
 :
 :
@@ -155,31 +220,38 @@ REM Locate the application resources.
 
 resources$ = FNresources_find_territory_folder("<GetFiler$Dir>.Resources")
 
-task_name$="GetFiler"
+REM Load the messages file.
+
+PROCmessage_initialise(resources$ + "Messages")
+
+task_name$ = FNmessage_lookup("TaskName")
+task_sprite$ = FNmessage_lookup("TaskSpr")
+PROCwimperror_initialise(task_name$, task_sprite$)
 :
 $b%="TASK"
 q%!0=2
-q%!4=&400C9
-q%!8=&4E383
-q%!12=&4AF80
-q%!16=0
+q%!4=&502
+q%!8=&400C9
+q%!12=&4E383
+q%!16=&4AF80
+q%!20=0
 :
 SYS "Wimp_Initialise",310,!b%,task_name$,q%
 :
-quit%=FALSE
+Quit% = FALSE
 :
-indirected_data_size%=1024
+indirected_data_size% = 1024
 DIM indirected_data% indirected_data_size%
 :
 PROCtemplate_open(resources$ + "Templates")
 PROCtemplate_load("Info",b%,indirected_data%,indirected_data_size%,-1)
-SYS "Wimp_CreateWindow",,b% TO program_info_window%
+SYS "Wimp_CreateWindow",,b% TO InfoWindow%
 PROCtemplate_load("SaveAs",b%,indirected_data%,indirected_data_size%,-1)
-SYS "Wimp_CreateWindow",,b% TO save_window%
+SYS "Wimp_CreateWindow",,b% TO SaveWindow%
 PROCtemplate_close
 :
-$FNicon_indirection(program_info_window%, 2) = CHR$(169) + " Stephen Fryatt, 2002-" + MID$(build_date$, 8)
-$FNicon_indirection(program_info_window%, 3) = build_version$ + " (" + build_date$ + ")"
+$FNicon_indirection(InfoWindow%, 2) = CHR$(169) + " Stephen Fryatt, 2002-" + MID$(build_date$, 8)
+$FNicon_indirection(InfoWindow%, 3) = build_version$ + " (" + build_date$ + ")"
 :
 SYS "XOS_SWINumberFromString",,"DragASprite_Start" TO ;flags%
 drag_a_sprite%=(flags% AND 1)=0
@@ -187,14 +259,13 @@ SYS "OS_Byte",161,28 TO ,,cmos_28%
 IF (cmos_28% AND %10)=0 THEN drag_a_sprite%=FALSE
 :
 PROCmenu_initialise
-!q%=program_info_window%
-PROCmenu_load_templates(resources$ + "Menus",q%)
-icon_bar_menu%=!q%
+!q% = InfoWindow%
+PROCmenu_load_templates(resources$ + "Menus", q%)
+IconbarMenu% = !q%
 :
-icon_bar%=FNicon_create_standard_bar(-1,"!getfiler")
+icon_bar%=FNicon_create_standard_bar(-1, task_sprite$)
 desktop_saved_sent%=FALSE
 poll_mask%=1
-PROCwimperror_initialise(task_name$, "!getfiler")
 ENDPROC
 :
 :
@@ -233,8 +304,8 @@ desktop_saved_sent%=FALSE
 poll_mask%=1
 SYS "OS_Find",0,file%
 :
-$FNicon_indirection(save_window%,2)="FilerPos"
-PROCwindow_open_as_menu_at(save_window%,save_x%,save_y%)
+$FNicon_indirection(SaveWindow%,2)="FilerPos"
+PROCwindow_open_as_menu_at(SaveWindow%,save_x%,save_y%)
 ENDPROC
 :
 :
@@ -244,7 +315,7 @@ DEF PROCstart_save_drag
 :
 LOCAL ox%,oy%,sprite$
 :
-!q%=save_window%
+!q%=SaveWindow%
 SYS "Wimp_GetWindowState",,q%
 ox%=q%!4-q%!20
 oy%=q%!16-q%!24
@@ -283,7 +354,7 @@ q%!32=q%!4
 q%!12=0
 q%!16=1
 :
-$(q%+44)=FNstring_leafname($FNicon_indirection(save_window%,2))+CHR$(0)
+$(q%+44)=FNstring_leafname($FNicon_indirection(SaveWindow%,2))+CHR$(0)
 q%!36=0    : REM File size (rubbish)
 q%!40=&FEB : REM File type
 q%!0=(48+LEN($(q%+44))) AND (NOT %11)
@@ -326,8 +397,4 @@ IF input%<>0 THEN SYS "OS_Find",0,input%
 
 SYS "Wimp_CreateMenu",,-1,0,0
 ENDPROC
-
-:
-DEF FNmessage_lookup(token$)
-IF token$ = "URLFailed" THEN = "Could not find an application to launch the given URL." ELSE =""
 

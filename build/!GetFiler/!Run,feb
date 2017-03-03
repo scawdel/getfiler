@@ -30,5 +30,5 @@ IconSprites <GetFiler$Dir>.!Sprites
 
 | Start the front-end.
 
-WimpSlot -min 32k -max 32k
+WimpSlot -min 64k -max 64k
 Run <GetFiler$Dir>.!RunImage
