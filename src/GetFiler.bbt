@@ -126,7 +126,12 @@ WHEN SaveWindow%
 		PROCsave_obey_file($FNicon_indirection(SaveWindow%, 2))
 	WHEN 27
 		SYS "Wimp_CreateMenu",, -1, 0, 0
+	OTHERWISE
+		SYS "Wimp_ProcessKey", key%
 	ENDCASE
+
+OTHERWISE
+	SYS "Wimp_ProcessKey", key%
 ENDCASE
 ENDPROC
 
