@@ -37,6 +37,12 @@ Help.IconBar:\TGetFiler application|MIt allows the positions of open Filer windo
 Help.Info:\Tprogram information \w for the GetFiler application.
 Help.Info.Website:\Tprogram information \w for the GetFiler application.|M\Svisit its website for information and updates.
 
+Help.SaveAs:\TGetFiler save \w.|MIt can be used to save an Obey file containing commands to re-open all of the Filer windows currently visible on the desktop.
+Help.SaveAs.Icon3:Drag this icon to the directory display where the Obey file is to be saved, or direct to another application.
+Help.SaveAs.Name:Enter a new filename, or full pathname, for the Obey file here.
+Help.SaveAs.Save:\Ssave the Obey file if there is a full pathname above.
+Help.SaveAs.Cancel:\Scancel the save.
+
 Help.IconBarMenu.00:\Rto see information about GetFiler and visit its website.
 Help.IconBarMenu.01:\Sread the GetFiler documentation.
 Help.IconBarMenu.02:\Squit GetFiler.

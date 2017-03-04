@@ -9,7 +9,7 @@
 =============================================================================
 GetFiler - Save Filer window positions from the Desktop          Version $$version$$
 
-(C) Stephen Fryatt, 2002-2014                  $$date$$
+(C) Stephen Fryatt, 2002-2017                  $$date$$
 =============================================================================
 
 </literal>
@@ -71,6 +71,16 @@ Update to initial release.
 <li>Added <menu>Help</menu> entry in iconbar menu.
 <li>Added <icon>Website</icon> button in <window>program information</window> window.
 <li>Return proper error message when desktop save message fails.
+</list>
+
+
+<subhead title="Test Build">
+
+Alpha release for testing and comment.
+
+<list>
+<li>Add support for Interactive Help.
+<li>Add support for internationalisation (ticket&nbsp;#521).
 </list>
 
 </chapter>

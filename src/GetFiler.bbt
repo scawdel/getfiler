@@ -159,7 +159,7 @@ REM relevant token name.
 
 CASE message%!32 OF
 	WHEN -2			: root$ = "IconBar"
-	WHEN SaveWindow%	: root$ = "Save"
+	WHEN SaveWindow%	: root$ = "SaveAs"
 	WHEN InfoWindow%	: root$ = "Info"
 	OTHERWISE		: root$ = ""
 ENDCASE
@@ -176,14 +176,7 @@ IF root$ <> "" THEN
 	IF suffix$ <> "" THEN
 		root$ += "." + suffix$
 	ELSE
-		IF message%!32 = SaveWindow% THEN
-			CASE TRUE OF
-				WHEN message%!36 >= 0 AND message%!36 <= 9	: root$ += ".Pool"
-				WHEN message%!36 >= 10 AND message%!36 <= 57	: root$ += ".Guess"
-				WHEN message%!36 >= 58 AND message%!36 <= 105	: root$ += ".Mark"
-				WHEN message%!36 >= 123 AND message%!36 <= 134	: root$ += ".Process"
-			ENDCASE
-		ENDIF
+		IF message%!36 >= 0 THEN root$ += ".Icon" + STR$(message%!36)
 	ENDIF
 	found% = FNmessage_lookup_result("Help." + root$, message$)
 ELSE
