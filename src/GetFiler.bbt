@@ -141,6 +141,11 @@ REM
 REM \param		The menu selection block.
 :
 DEF PROCmenu_selection(block%)
+LOCAL reopen%
+
+SYS "Wimp_GetPointerInfo",,q%
+reopen% = (q%!8 = 1)
+
 CASE FNmenu_current_handle OF
 WHEN IconbarMenu%
 	CASE !block% OF
@@ -148,6 +153,8 @@ WHEN IconbarMenu%
 	WHEN 2	: Quit% = TRUE
 	ENDCASE
 ENDCASE
+
+IF reopen% THEN PROCmenu_create(FNmenu_current_handle, 0, 0)
 ENDPROC
 
 

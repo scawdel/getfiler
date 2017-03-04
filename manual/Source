@@ -81,6 +81,8 @@ Alpha release for testing and comment.
 <list>
 <li>Add support for Interactive Help.
 <li>Add support for internationalisation (ticket&nbsp;#521).
+<li>Pass unused keypresses on to the Wimp for further processing.
+<li>Handle <mouse>adjust</mouse>-clicks on menu items.
 </list>
 
 </chapter>
