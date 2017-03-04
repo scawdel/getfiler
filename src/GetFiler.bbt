@@ -36,94 +36,119 @@ LIBRARY "BASIC:Window"
 :
 PROCwimperror_initialise("GetFiler", "!getfiler")
 ON ERROR result% = FNwimperror_program : END
-:
+
 REM These values get replaced by tokenize.
-:
+
 build_version$ = "1.10"
 build_date$ = "01 Jul 2009"
-:
+
 PROCinitialise
-:
+
 ON ERROR Quit% = FNwimperror_program
-:
+
 WHILE NOT Quit%
- PROCpoll
+	PROCpoll
 ENDWHILE
-:
+
 SYS "Wimp_CloseDown"
-:
 END
-:
-:
-:
+
+
+REM Handle calls to Wimp_Poll and process the responses.
 :
 DEF PROCpoll
-SYS "Wimp_Poll",poll_mask%,b% TO reason_code%
+LOCAL reason%
+
+SYS "Wimp_Poll", PollMask%, b% TO reason%
 :
-CASE reason_code% OF
- WHEN 0     : IF desktop_saved_sent% THEN PROCprocess_desktop_save_result
- WHEN 2     : SYS "Wimp_OpenWindow",,b%
- WHEN 3     : SYS "Wimp_CloseWindow",,b%
- WHEN 6     : PROChandle_mouse_click_event
- WHEN 7     : PROCuser_drag_box_end
- WHEN 8     : PROChandle_key_press_event
- WHEN 9     : PROChandle_menu_selection_event
- WHEN 17,18 : PROCuser_message(b%)
- WHEN 19    : PROCuser_message_bounce(b%)
+CASE reason% OF
+	WHEN 0		: IF DesktopSaveSent% THEN PROCprocess_desktop_save_result
+	WHEN 2		: SYS "Wimp_OpenWindow",,b%
+	WHEN 3		: SYS "Wimp_CloseWindow",,b%
+	WHEN 6		: PROCmouse_click(b%!12, b%!16, b%!8)
+	WHEN 7		: PROCuser_drag_box_end
+	WHEN 8		: PROCkey_press(!b%, b%!24)
+	WHEN 9		: PROCmenu_selection(b%)
+	WHEN 17, 18	: PROCuser_message(b%)
+	WHEN 19		: PROCuser_message_bounce(b%)
 ENDCASE
 ENDPROC
+
+
+REM Process mouse clicks in windows.
+REM
+REM \param window%	The window under the mouse.
+REM \param icon%	The icon under the mouse.
+REM \param buttons%	The buttons involved in the selection.
 :
-:
-:
-:
-DEF PROChandle_mouse_click_event
-CASE b%!12 OF
- WHEN -2
-  CASE b%!8 OF
-   WHEN 2 : PROCmenu_create_iconbar(IconbarMenu%, !b%)
-   WHEN 4 : PROCsend_desktop_save
-  ENDCASE
- WHEN SaveWindow%
-  CASE b%!8 OF
-   WHEN 64 : IF b%!16=3 PROCstart_save_drag
-   WHEN 4
-    CASE b%!16 OF
-     WHEN 0 : PROCsave_obey_file($FNicon_indirection(SaveWindow%,2))
-     WHEN 1 : SYS "Wimp_CreateMenu",,-1,0,0
-    ENDCASE
-  ENDCASE
- WHEN InfoWindow%
-  IF b%!8 = 4 AND b%!16 = 8 THEN PROCurl_launch(FNmessage_lookup("SupportURL")) : PROCmenu_create(-1,0,0)
+DEF PROCmouse_click(window%, icon%, button%)
+CASE window% OF
+WHEN -2
+	CASE button% OF
+	WHEN 2
+		PROCmenu_create_iconbar(IconbarMenu%, !b%)
+	WHEN 4
+		PROCsend_desktop_save
+	ENDCASE
+	
+WHEN SaveWindow%
+	CASE button% OF
+	WHEN 64
+		IF icon% = 3 THEN PROCstart_save_drag
+	WHEN 4
+		CASE icon% OF
+		WHEN 0
+			PROCsave_obey_file($FNicon_indirection(SaveWindow%, 2))
+		WHEN 1
+			SYS "Wimp_CreateMenu",, -1, 0, 0
+		ENDCASE
+	ENDCASE
+
+WHEN InfoWindow%
+	IF button% = 4 AND icon% = 8 THEN
+		PROCurl_launch(FNmessage_lookup("SupportURL"))
+		PROCmenu_create(-1, 0, 0)
+	ENDIF
 ENDCASE
 ENDPROC
+
+
+REM Process keypresses in windows.
+REM
+REM \param window%	The window owning the caret.
+REM \param key%		The code of the keypress.
 :
-:
-:
-:
-DEF PROChandle_key_press_event
-IF !b%=SaveWindow% THEN
- CASE b%!24 OF
-  WHEN 13 : PROCsave_obey_file($FNicon_indirection(SaveWindow%,2))
-  WHEN 27 : SYS "Wimp_CreateMenu",,-1,0,0
- ENDCASE
-ENDIF
+DEF PROCkey_press(window%, key%)
+CASE window% OF
+WHEN SaveWindow%
+	CASE key% OF
+	WHEN 13
+		PROCsave_obey_file($FNicon_indirection(SaveWindow%, 2))
+	WHEN 27
+		SYS "Wimp_CreateMenu",, -1, 0, 0
+	ENDCASE
+ENDCASE
 ENDPROC
+
+
+REM Process selections from menus.
+REM
+REM \param		The menu selection block.
 :
-:
-:
-:
-DEF PROChandle_menu_selection_event
+DEF PROCmenu_selection(block%)
 CASE FNmenu_current_handle OF
- WHEN IconbarMenu%
-  CASE !b% OF
-   WHEN 1 : OSCLI("%Filer_Run <GetFiler$Dir>.!Help")
-   WHEN 2 : Quit% = TRUE
-  ENDCASE
+WHEN IconbarMenu%
+	CASE !block% OF
+	WHEN 1	: OSCLI("%Filer_Run <GetFiler$Dir>.!Help")
+	WHEN 2	: Quit% = TRUE
+	ENDCASE
 ENDCASE
 ENDPROC
-:
-:
-:
+
+
+REM Process incoming User Messages.
+REM
+REM |param block%	The user message block.
 :
 DEF PROCuser_message(block%)
 CASE b%!16 OF
@@ -134,9 +159,11 @@ CASE b%!16 OF
 	WHEN &4E383	: PROCurl_bounce(block%)
 ENDCASE
 ENDPROC
-:
-:
-:
+
+
+REM Process bounced User Messages.
+REM
+REM |param block%	The user message block.
 :
 DEF PROCuser_message_bounce(block%)
 CASE b%!16 OF
@@ -144,7 +171,6 @@ CASE b%!16 OF
 	WHEN &4AF80	: PROCurl_bounce(block%)
 ENDCASE
 ENDPROC
-
 
 
 REM Process requests for interactive help text.
@@ -200,13 +226,19 @@ $(message% + 20) = message$ + CHR$(0)
 !message% = 24+(LEN(message$) AND &FFFFFC)
 SYS "Wimp_SendMessage", 17, message%, message%!4
 ENDPROC
-:
-:
-:
+
+
+REM Initialise ourselves, internally and with the Wimp.
 :
 DEF PROCinitialise
-LOCAL resources$
-:
+LOCAL resources$, task_name$, task_sprite$, indirected_data%, indirected_data_size%, icon_bar%, flags%, cmos_28%
+
+REM Set up the quit flag, poll mask and global data blocks.
+
+Quit% = FALSE
+PollMask% = &3C01
+DesktopSaveSent% = FALSE
+
 DIM a% 256, b% 4095, q% 256
 
 REM Locate the application resources.
@@ -220,45 +252,50 @@ PROCmessage_initialise(resources$ + "Messages")
 task_name$ = FNmessage_lookup("TaskName")
 task_sprite$ = FNmessage_lookup("TaskSpr")
 PROCwimperror_initialise(task_name$, task_sprite$)
+
+REM Initialise with the Wimp.
+
+q%!0 = 2
+q%!4 = &502
+q%!8 = &400C9
+q%!12 = &4E383
+q%!16 = &4AF80
+q%!20 = 0
 :
-$b%="TASK"
-q%!0=2
-q%!4=&502
-q%!8=&400C9
-q%!12=&4E383
-q%!16=&4AF80
-q%!20=0
-:
-SYS "Wimp_Initialise",310,!b%,task_name$,q%
-:
-Quit% = FALSE
-:
+SYS "Wimp_Initialise", 310, &4B534154, task_name$, q%
+
+REM Load the window templates.
+
 indirected_data_size% = 1024
 DIM indirected_data% indirected_data_size%
-:
+
 PROCtemplate_open(resources$ + "Templates")
 PROCtemplate_load("Info",b%,indirected_data%,indirected_data_size%,-1)
 SYS "Wimp_CreateWindow",,b% TO InfoWindow%
 PROCtemplate_load("SaveAs",b%,indirected_data%,indirected_data_size%,-1)
 SYS "Wimp_CreateWindow",,b% TO SaveWindow%
 PROCtemplate_close
-:
+
 $FNicon_indirection(InfoWindow%, 2) = CHR$(169) + " Stephen Fryatt, 2002-" + MID$(build_date$, 8)
 $FNicon_indirection(InfoWindow%, 3) = build_version$ + " (" + build_date$ + ")"
-:
-SYS "XOS_SWINumberFromString",,"DragASprite_Start" TO ;flags%
-drag_a_sprite%=(flags% AND 1)=0
-SYS "OS_Byte",161,28 TO ,,cmos_28%
-IF (cmos_28% AND %10)=0 THEN drag_a_sprite%=FALSE
-:
+
+REM Initialise and load the menu templates.
+
 PROCmenu_initialise
 !q% = InfoWindow%
 PROCmenu_load_templates(resources$ + "Menus", q%)
 IconbarMenu% = !q%
-:
+
+REM Initialise the dragging system.
+
+SYS "XOS_SWINumberFromString",,"DragASprite_Start" TO ;flags%
+DragASprite% = ((flags% AND 1) = 0)
+SYS "OS_Byte", 161, 28 TO ,,cmos_28%
+IF (cmos_28% AND %10) = 0 THEN DragASprite% = FALSE
+
+REM Create an iconbar icon.
+
 icon_bar%=FNicon_create_standard_bar(-1, task_sprite$)
-desktop_saved_sent%=FALSE
-poll_mask%=1
 ENDPROC
 :
 :
@@ -284,8 +321,8 @@ IF found% THEN
  b%!20=file%
  b%!24=0
  SYS "Wimp_SendMessage",17,b%,task_handle%
- desktop_saved_sent%=TRUE
- poll_mask%=0
+ DesktopSaveSent%=TRUE
+ PollMask% = PollMask% AND &FFFFFFFE
 ENDIF
 ENDPROC
 :
@@ -293,8 +330,8 @@ ENDPROC
 :
 :
 DEF PROCprocess_desktop_save_result
-desktop_saved_sent%=FALSE
-poll_mask%=1
+DesktopSaveSent%=FALSE
+PollMask% = PollMask% OR &01
 SYS "OS_Find",0,file%
 :
 $FNicon_indirection(SaveWindow%,2)="FilerPos"
@@ -325,7 +362,7 @@ q%!28=&80000000
 q%!32=&7FFFFFFF
 q%!36=&7FFFFFFF
 :
-IF drag_a_sprite% THEN
+IF DragASprite% THEN
  SYS "DragASprite_Start",%11000101,1,sprite$,q%+8,q%+24
 ELSE
  SYS "Wimp_DragBox",,q%
@@ -337,7 +374,7 @@ ENDPROC
 :
 DEF PROCuser_drag_box_end
 :
-IF drag_a_sprite% THEN SYS "DragASprite_Stop"
+IF DragASprite% THEN SYS "DragASprite_Stop"
 :
 SYS "Wimp_GetPointerInfo",,q%
 q%!20=q%!12
