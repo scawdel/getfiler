@@ -250,6 +250,7 @@ REM Set up the quit flag, poll mask and global data blocks.
 Quit% = FALSE
 PollMask% = &3C01
 DesktopSaveSent% = FALSE
+DesktopSaveFile% = 0
 
 DIM a% 256, b% 4095, q% 256
 
@@ -309,45 +310,55 @@ REM Create an iconbar icon.
 
 icon_bar%=FNicon_create_standard_bar(-1, task_sprite$)
 ENDPROC
-:
-:
-:
+
+
+REM Send a Message_DesktopSave to the Filer, to request that it saves the
+REM locations of all open Filer windows to PipeFS.
 :
 DEF PROCsend_desktop_save
-LOCAL task_name$
-save_x%=!b% : save_y%=b%!4
-next_task%=0
-found%=FALSE
-:
+LOCAL task_name$, next_task%, found%
+
+SaveX% = b%!0
+SaveY% = b%!4
+
+next_task% = 0
+found% = FALSE
+
 REPEAT
- SYS "TaskManager_EnumerateTasks",next_task%,b%,16 TO next_task%
- SYS "XOS_GenerateError", b%!4 TO task_name$
- IF task_name$ = "Filer" THEN found% = TRUE : task_handle% = !b%
-UNTIL next_task%<0 OR found%
-:
-IF found% THEN
- SYS "OS_Find",&83,"Pipe:$.GetFiler" TO file%
- !b%=28
- b%!12=0
- b%!16=&A
- b%!20=file%
- b%!24=0
- SYS "Wimp_SendMessage",17,b%,task_handle%
- DesktopSaveSent%=TRUE
- PollMask% = PollMask% AND &FFFFFFFE
-ENDIF
+	SYS "TaskManager_EnumerateTasks", next_task%, b%, 16 TO next_task%
+	SYS "XOS_GenerateError", b%!4 TO task_name$
+	IF task_name$ = "Filer" THEN found% = TRUE : task_handle% = !b%
+UNTIL next_task% < 0 OR found%
+
+IF NOT found% THEN ENDPROC
+
+SYS "OS_Find",&83,"Pipe:$.GetFiler" TO DesktopSaveFile%
+
+!b% = 28
+b%!12 = 0
+b%!16 = &A
+b%!20 = DesktopSaveFile%
+b%!24 = 0
+SYS "Wimp_SendMessage",17,b%,task_handle%
+
+DesktopSaveSent% = TRUE
+PollMask% = PollMask% AND &FFFFFFFE
 ENDPROC
 :
 :
 :
 :
 DEF PROCprocess_desktop_save_result
-DesktopSaveSent%=FALSE
+DesktopSaveSent% = FALSE
 PollMask% = PollMask% OR &01
-SYS "OS_Find",0,file%
-:
-$FNicon_indirection(SaveWindow%,2)="FilerPos"
-PROCwindow_open_as_menu_at(SaveWindow%,save_x%,save_y%)
+
+IF DesktopSaveFile% = 0 THEN ENDPROC
+
+SYS "OS_Find", 0, DesktopSaveFile%
+DesktopSaveFile% = 0
+
+$FNicon_indirection(SaveWindow%, 2) = FNmessage_lookup("DefaultFile")
+PROCwindow_open_as_menu_at(SaveWindow%, SaveX%, SaveY%)
 ENDPROC
 :
 :
