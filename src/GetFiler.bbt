@@ -160,7 +160,7 @@ ENDPROC
 
 REM Process incoming User Messages.
 REM
-REM |param block%	The user message block.
+REM \param block%	The user message block.
 :
 DEF PROCuser_message(block%)
 CASE b%!16 OF
@@ -175,7 +175,7 @@ ENDPROC
 
 REM Process bounced User Messages.
 REM
-REM |param block%	The user message block.
+REM \param block%	The user message block.
 :
 DEF PROCuser_message_bounce(block%)
 CASE b%!16 OF
