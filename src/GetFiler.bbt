@@ -165,7 +165,7 @@ REM |param block%	The user message block.
 DEF PROCuser_message(block%)
 CASE b%!16 OF
 	WHEN 0		: Quit% = TRUE
-	WHEN 2		: PROCsave_file_from_drag
+	WHEN 2		: PROCsave_file_from_drag(block%)
 	WHEN &502	: PROCsend_interactive_help(block%)
 	WHEN &400C9	: IF block%!20 = SaveWindow% THEN SYS "OS_File", 6, "Pipe:$.GetFiler"
 	WHEN &4E383	: PROCurl_bounce(block%)
@@ -274,7 +274,7 @@ q%!8 = &400C9
 q%!12 = &4E383
 q%!16 = &4AF80
 q%!20 = 0
-:
+
 SYS "Wimp_Initialise", 310, &4B534154, task_name$, q%
 
 REM Load the window templates.
@@ -316,7 +316,7 @@ REM Send a Message_DesktopSave to the Filer, to request that it saves the
 REM locations of all open Filer windows to PipeFS.
 :
 DEF PROCsend_desktop_save
-LOCAL task_name$, next_task%, found%
+LOCAL task_name$, next_task%, found%, task_handle%
 
 SaveX% = b%!0
 SaveY% = b%!4
@@ -339,14 +339,18 @@ b%!12 = 0
 b%!16 = &A
 b%!20 = DesktopSaveFile%
 b%!24 = 0
-SYS "Wimp_SendMessage",17,b%,task_handle%
+SYS "Wimp_SendMessage", 17, b%, task_handle%
+
+REM Enable Null Polls, so that we will receive one when the message has
+REM been actioned by the Filer.
 
 DesktopSaveSent% = TRUE
 PollMask% = PollMask% AND &FFFFFFFE
 ENDPROC
-:
-:
-:
+
+
+REM Handle the completion of the Message_DesktopSave, which is indicated
+REM by receipt of a Null Poll event.
 :
 DEF PROCprocess_desktop_save_result
 DesktopSaveSent% = FALSE
@@ -360,94 +364,100 @@ DesktopSaveFile% = 0
 $FNicon_indirection(SaveWindow%, 2) = FNmessage_lookup("DefaultFile")
 PROCwindow_open_as_menu_at(SaveWindow%, SaveX%, SaveY%)
 ENDPROC
-:
-:
-:
+
+
+REM Respond to drags on the save file icon by starting a drag operation.
 :
 DEF PROCstart_save_drag
-:
-LOCAL ox%,oy%,sprite$
-:
-!q%=SaveWindow%
+LOCAL ox%, oy%, sprite$
+
+!q% = SaveWindow%
 SYS "Wimp_GetWindowState",,q%
-ox%=q%!4-q%!20
-oy%=q%!16-q%!24
-q%!4=3
+
+ox% = q%!4 - q%!20
+oy% = q%!16 - q%!24
+q%!4 = 3
 SYS "Wimp_GetIconState",,q%
 SYS "XOS_GenerateError", q%!28 TO sprite$
-q%!4=5
-q%!8=ox%+q%!8
-q%!12=oy%+q%!12
-q%!16=ox%+q%!16
-q%!20=oy%+q%!20
-q%!24=&80000000
-q%!28=&80000000
-q%!32=&7FFFFFFF
-q%!36=&7FFFFFFF
-:
+q%!4 = 5
+q%!8 = ox% + q%!8
+q%!12 = oy% + q%!12
+q%!16 = ox% + q%!16
+q%!20 = oy% + q%!20
+q%!24 = &80000000
+q%!28 = &80000000
+q%!32 = &7FFFFFFF
+q%!36 = &7FFFFFFF
+
 IF DragASprite% THEN
- SYS "DragASprite_Start",%11000101,1,sprite$,q%+8,q%+24
+	SYS "DragASprite_Start", %11000101, 1, sprite$, q% + 8, q% + 24
 ELSE
- SYS "Wimp_DragBox",,q%
+	SYS "Wimp_DragBox",,q%
 ENDIF
 ENDPROC
-:
-:
-:
+
+
+REM Handle the completion of a save drag.
 :
 DEF PROCuser_drag_box_end
-:
 IF DragASprite% THEN SYS "DragASprite_Stop"
-:
+
 SYS "Wimp_GetPointerInfo",,q%
-q%!20=q%!12
-q%!24=q%!16
-q%!28=q%!0
-q%!32=q%!4
-q%!12=0
-q%!16=1
-:
-$(q%+44)=FNstring_leafname($FNicon_indirection(SaveWindow%,2))+CHR$(0)
-q%!36=0    : REM File size (rubbish)
-q%!40=&FEB : REM File type
-q%!0=(48+LEN($(q%+44))) AND (NOT %11)
-SYS "Wimp_SendMessage",18,q%,q%!20,q%!24
+q%!20 = q%!12
+q%!24 = q%!16
+q%!28 = q%!0
+q%!32 = q%!4
+q%!12 = 0
+q%!16 = 1
+
+$(q% + 44) = FNstring_leafname($FNicon_indirection(SaveWindow%, 2)) + CHR$(0)
+q%!36 = 0    : REM File size (rubbish)
+q%!40 = &FEB : REM File type
+q%!0 = (48 + LEN($(q%+44))) AND (NOT %11)
+SYS "Wimp_SendMessage", 18, q%, q%!20, q%!24
 ENDPROC
+
+
+REM Handle the completion of a Data Transfer Protocol negotiation.
+REM
+REM \param block%	The message block to process.
 :
-:
-:
-:
-DEF PROCsave_file_from_drag
+DEF PROCsave_file_from_drag(block%)
 LOCAL filename$
-SYS "XOS_GenerateError", b% + 44 TO filename$
+
+SYS "XOS_GenerateError", block% + 44 TO filename$
 PROCsave_obey_file(filename$)
-:
-b%!12=b%!8
-b%!16=3
-SYS "Wimp_SendMessage",18,b%,b%!4
+
+block%!12 = block%!8
+block%!16 = 3
+SYS "Wimp_SendMessage", 18, block%, block%!4
 ENDPROC
-:
-:
-:
+
+
+REM Save the data held in PipeFS out as an Obey file.
+REM
+REM \param file$	The name of the file to save.
 :
 DEF PROCsave_obey_file(file$)
-:
-SYS "OS_Find",&83,file$ TO output%
-SYS "OS_Find",&43,"Pipe:$.GetFiler" TO input%
+LOCAL input%, output%, line$
 
-IF input%<>0 AND output%<>0 THEN
- WHILE NOT EOF#input%
-  line$=GET$#input%
-  IF LEFT$(line$,13)="Filer_OpenDir" THEN BPUT#output%,line$
- ENDWHILE
+SYS "OS_Find", &83, file$ TO output%
+SYS "OS_Find", &43, "Pipe:$.GetFiler" TO input%
+
+IF input% <> 0 AND output% <> 0 THEN
+	WHILE NOT EOF#input%
+		line$ = GET$#input%
+		IF LEFT$(line$, 13) = "Filer_OpenDir" THEN BPUT#output%, line$
+	ENDWHILE
 ENDIF
 
-IF output%<>0 THEN
- SYS "OS_Find",0,output%
- SYS "OS_File",18,file$,&FEB
+IF output% <> 0 THEN
+	SYS "OS_Find", 0, output%
+	SYS "OS_File", 18, file$, &FEB
 ENDIF
-IF input%<>0 THEN SYS "OS_Find",0,input%
 
-SYS "Wimp_CreateMenu",,-1,0,0
+IF input% <> 0 THEN SYS "OS_Find", 0, input%
+
+SYS "Wimp_CreateMenu",,-1, 0, 0
 ENDPROC
 

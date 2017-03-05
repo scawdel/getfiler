@@ -83,6 +83,7 @@ Alpha release for testing and comment.
 <li>Add support for internationalisation (ticket&nbsp;#521).
 <li>Pass unused keypresses on to the Wimp for further processing.
 <li>Handle <mouse>adjust</mouse>-clicks on menu items.
+<li>Tidy up and refactor code to make it easier to follow.
 </list>
 
 </chapter>
