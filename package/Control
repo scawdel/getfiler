@@ -1,0 +1,20 @@
+Package: GetFiler
+Version: 1.02-1
+Section: Desktop
+Priority: Optional
+Maintainer: Stephen Fryatt <info@stevefryatt.org.uk>
+Standards-Version: 0.6.0
+Environment: any
+Licence: Free
+Description: GetFiler can save the positions of open directory viewers for reuse
+ Get Filer is a small application to make the Filer save out the Filer_OpenDir
+ commands for all the viewers currently open on the Desktop into an Obey file.
+ This file can then be double-clicked to re-open the viewers, or its contents
+ can be added to a boot sequence so that viewers are opened when the machine
+ starts up.
+ .
+ This is the information that would have been included in a 'saved desktop'
+ file, if one were saved. This is no longer possible under Select or recent
+ versions of RISC OS 5 anyway.
+Homepage: http://www.stevefryatt.org.uk/software/utils/
+Components: Apps.Desktop.!GetFiler (Movable)

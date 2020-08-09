@@ -1,4 +1,4 @@
-# Copyright 2014-2017, Stephen Fryatt (info@stevefryatt.org.uk)
+# Copyright 2014-2020, Stephen Fryatt (info@stevefryatt.org.uk)
 #
 # This file is part of GetFiler:
 #
@@ -27,6 +27,9 @@
 ARCHIVE := getfiler
 
 APP := !GetFiler
+
+PACKAGE := GetFiler
+PACKAGELOC := Desktop
 
 SRCS := GetFiler.bbt
 
