@@ -79,8 +79,9 @@ Update to initial release.
 Alpha release for testing and comment.
 
 <list>
+<li>Licence updated to EUPL&nbsp;v1.2.
 <li>Add support for Interactive Help.
-<li>Add support for internationalisation (ticket&nbsp;#521).
+<li>Add support for internationalisation, using ResConf-style system variables to identify resources (ticket&nbsp;#521).
 <li>Pass unused keypresses on to the Wimp for further processing.
 <li>Handle <mouse>adjust</mouse>-clicks on menu items.
 <li>Tidy up and refactor code to make it easier to follow.
