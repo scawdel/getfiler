@@ -320,7 +320,7 @@ IF (cmos_28% AND %10) = 0 THEN DragASprite% = FALSE
 
 REM Create an iconbar icon.
 
-icon_bar%=FNicon_create_standard_bar(-1, task_sprite$)
+icon_bar% = FNicon_create_standard_bar(-1, task_sprite$)
 ENDPROC
 
 
