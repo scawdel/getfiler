@@ -1,6 +1,6 @@
 REM >!GetFiler
 REM
-REM Copyright 2002-2017, Stephen Fryatt (info@stevefryatt.org.uk)
+REM Copyright 2002-2020, Stephen Fryatt (info@stevefryatt.org.uk)
 REM
 REM This file is part of GetFiler:
 REM
@@ -256,11 +256,14 @@ DIM a% 256, b% 4095, q% 256
 
 REM Locate the application resources.
 
-resources$ = FNresources_find_territory_folder("<GetFiler$Dir>.Resources")
+PROCresources_initialise_paths("<GetFiler$Dir>.Resources", "UK", "GetFiler$Language")
 
 REM Load the messages file.
 
-PROCmessage_initialise(resources$ + "Messages")
+resources$ = FNresources_find_file("Messages", &FFF)
+IF resources$ = "" THEN ERROR 255, "Unable to find Messages file"
+
+PROCmessage_initialise(resources$)
 
 task_name$ = FNmessage_lookup("TaskName")
 task_sprite$ = FNmessage_lookup("TaskSpr")
@@ -279,10 +282,13 @@ SYS "Wimp_Initialise", 310, &4B534154, task_name$, q%
 
 REM Load the window templates.
 
+resources$ = FNresources_find_file("Templates", &FEC)
+IF resources$ = "" THEN ERROR 255, "Unable to find Templates file"
+
 indirected_data_size% = 1024
 DIM indirected_data% indirected_data_size%
 
-PROCtemplate_open(resources$ + "Templates")
+PROCtemplate_open(resources$)
 PROCtemplate_load("Info",b%,indirected_data%,indirected_data_size%,-1)
 SYS "Wimp_CreateWindow",,b% TO InfoWindow%
 PROCtemplate_load("SaveAs",b%,indirected_data%,indirected_data_size%,-1)
@@ -294,9 +300,12 @@ $FNicon_indirection(InfoWindow%, 3) = build_version$ + " (" + build_date$ + ")"
 
 REM Initialise and load the menu templates.
 
+resources$ = FNresources_find_file("Menus", &FFD)
+IF resources$ = "" THEN ERROR 255, "Unable to find Menus file"
+
 PROCmenu_initialise
 !q% = InfoWindow%
-PROCmenu_load_templates(resources$ + "Menus", q%)
+PROCmenu_load_templates(resources$, q%)
 IconbarMenu% = !q%
 
 REM Initialise the dragging system.
