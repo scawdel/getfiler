@@ -205,6 +205,8 @@ ENDCASE
 REM Look up the help text, either as a window message or by checking the
 REM menus that belong to us.
 
+found% = FALSE
+
 IF root$ <> "" THEN
 	suffix$ = FNicon_validation_command(message%!32, message%!36, "N")
 
@@ -212,11 +214,12 @@ IF root$ <> "" THEN
 	REM check to see if there's a special case to set up.
 
 	IF suffix$ <> "" THEN
-		root$ += "." + suffix$
+		found% = FNmessage_lookup_result("Help." + root$ + "." + suffix$, message$)
 	ELSE
-		IF message%!36 >= 0 THEN root$ += ".Icon" + STR$(message%!36)
+		IF message%!36 >= 0 THEN found% = FNmessage_lookup_result("Help." + root$ + ".Icon" + STR$(message%!36), message$)
 	ENDIF
-	found% = FNmessage_lookup_result("Help." + root$, message$)
+
+	IF NOT found% THEN found% = FNmessage_lookup_result("Help." + root$, message$)
 ELSE
 	SYS "Wimp_GetMenuState", 1, q%, message%!32, message%!36
 	CASE FNmenu_current_handle OF
