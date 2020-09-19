@@ -1,5 +1,5 @@
 GetFiler
-=======
+========
 
 Save Filer window positions from the Desktop.
 
